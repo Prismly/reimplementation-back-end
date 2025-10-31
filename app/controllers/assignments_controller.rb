@@ -226,4 +226,23 @@ class AssignmentsController < ApplicationController
 
     assignment.staggered_and_no_topic?(topic_id)
   end
+  # GET /assignment_questionnaires
+  def all_with_topics
+    assignment_questionnaires = AssignmentQuestionnaire.includes(:questionnaire, :topic)
+    
+    render json: assignment_questionnaires.map { |aq|
+      {
+        id: aq.id,
+        assignment_id: aq.assignment_id,
+        topic_id: aq.topic_id,
+        topic_name: aq.topic&.name,          # optional: include topic name
+        questionnaire_id: aq.questionnaire.id,
+        questionnaire_name: aq.questionnaire.name,
+        questionnaire_type: aq.questionnaire.questionnaire_type,
+        created_at: aq.created_at,
+        updated_at: aq.updated_at
+      }
+    }, status: :ok
+  end
+
 end

@@ -90,7 +90,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :sign_up_topics, only: [:index, :create, :update, :show, :destroy] do
+      resources :project_topics, only: [:index, :create, :update, :show, :destroy] , controller: 'sign_up_topics' do
         member do
           post :assign_rubric
           delete :remove_rubric
@@ -145,6 +145,22 @@ Rails.application.routes.draw do
           delete :delete_participants
         end
       end
+      resources :project_topics do
+          collection do
+              get :list_by_assignment  # optional custom action if needed
+          end
+      end
+      Rails.application.routes.draw do
+        resources :assignments do
+          collection do
+            get :all_with_topics   # This will map GET /assignments/all_with_topics
+          end
+        end
+      end
+
+
+
+      
 
       
 end

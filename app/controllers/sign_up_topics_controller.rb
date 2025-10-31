@@ -3,17 +3,22 @@ class SignUpTopicsController < ApplicationController
 
   # GET /sign_up_topics?assignment_id=&topic_ids[]=
   # Retrieve SignUpTopics by two query parameters - assignment_id (compulsory) and an array of topic_ids (optional)
-  def index
+ def index
     if params[:assignment_id].nil?
       render json: { message: 'Assignment ID is required!' }, status: :unprocessable_entity
-    elsif params[:topic_ids].nil?
-      @sign_up_topics = SignUpTopic.where(assignment_id: params[:assignment_id])
-      render json: @sign_up_topics, status: :ok
-    else
-      @sign_up_topics = SignUpTopic.where(assignment_id: params[:assignment_id], topic_identifier: params[:topic_ids])
-      render json: @sign_up_topics, status: :ok
+      return
     end
-    # render json: {message: 'All selected topics have been loaded successfully.', sign_up_topics: @stopics}, status: 200
+
+    if params[:topic_ids].present?
+      @sign_up_topics = SignUpTopic.where(
+        assignment_id: params[:assignment_id],
+        topic_identifier: params[:topic_ids]
+      )
+    else
+      @sign_up_topics = SignUpTopic.where(assignment_id: params[:assignment_id])
+    end
+
+    render json: @sign_up_topics, status: :ok
   end
 
   def rubric_list

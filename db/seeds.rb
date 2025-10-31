@@ -61,6 +61,53 @@ begin
         private: false
       ).id
     end
+  puts "creating questionnaires and items"
+  questionnaire_ids = []
+
+  num_assignments.times do |i|
+    # Create a questionnaire for each assignment
+    begin
+      q = Questionnaire.create!(
+        name: "Questionnaire #{i + 1}",
+        instructor_id: instructor_user_ids[i % num_instructors],
+        private: false,
+        min_question_score: 0,
+        max_question_score: 5,
+        questionnaire_type: 'Review',
+        display_type: 'Dropdown',
+        instruction_loc: 'No instructions',
+      )
+      questionnaire_ids << q.id
+
+      # Add 3 simple items/questions per questionnaire
+      3.times do |j|
+        Item.create!(
+          txt: "Question #{j + 1} for Questionnaire #{i + 1}",
+          weight: 1,
+          seq: j + 1,
+          question_type: 'Criterion',
+          size: 'Medium',
+          questionnaire_id: q.id
+        )
+      end
+
+      # Link questionnaire to assignment safely
+      aq = AssignmentQuestionnaire.create(
+        assignment_id: assignment_ids[i % num_assignments],
+        questionnaire_id: q.id,
+        used_in_round: 1
+      )
+
+      if aq.persisted?
+        puts "Linked Assignment #{assignment_ids[i % num_assignments]} with Questionnaire #{q.id}"
+      else
+        puts "Failed to link AssignmentQuestionnaire: #{aq.errors.full_messages.join(', ')}"
+      end
+
+    rescue ActiveRecord::RecordInvalid => e
+      puts "Failed to create questionnaire or items: #{e.record.errors.full_messages.join(', ')}"
+    end
+  end
 
 
     puts "creating teams"
